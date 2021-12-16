@@ -2,7 +2,7 @@ package runtime
 
 //import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.{col, regexp_extract}
+import org.apache.spark.sql.functions.{col, regexp_extract, substring, substring_index, trim}
 
 
 object Main {
@@ -35,8 +35,6 @@ object Main {
                         "\\s+(\\d+)\\s\"",0)).drop("_c0")
 
     regexDf.show()
-
     sc.stop()
   }
-
 }
