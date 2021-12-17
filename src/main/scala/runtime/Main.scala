@@ -3,7 +3,9 @@ package runtime
 //import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.{col, regexp_extract, substring, substring_index, trim}
+import org.apache.spark.sql.functions.{col, regexp_extract, substring, substring_index, trim, udf}
+
+import java.time.format.DateTimeFormatter
 
 
 object Main {
@@ -35,12 +37,26 @@ object Main {
                       .withColumn("content_size",regexp_extract(col("_c0"),
                         "\\s+(\\d+)\\s\"",0)).drop("_c0")
 
+    val u_parse_time_udf = udf(parse_clf_time)
+
+    // LocalDateTime
+    val cleanDf = regexDf.withColumn("timestamp", u_parse_time_udf(regexDf("timestamp"))
+                                    .as("LocalDateTime"))
+                          .withColumn("status", regexp_extract(col("status"),
+                            "\\d{3}", 0))
+                          .withColumn("content_size", regexp_extract(col("content_size"),
+                            "\\d+", 0))
+    cleanDf.show()
     sc.stop()
   }
 
+  val month_map: Map[String, Int] = Map("Jan"->1, "Feb"->2, "Mar"->3,
+    "Apr"->4, "May"->5, "Jun"->6,
+    "Jul"->7, "Aug"->8, "Sep"->9,
+    "Oct"->10, "Nov"->11, "Dec"->12)
 
 
-  def parse_clf_time(s: String): String={
+  def parse_clf_time = (s: String) => {
     """ Convert Common Log time format into a Python datetime object
     Args:
         s (str): date and time in Apache time format [dd/mmm/yyyy:hh:mm:ss (+/-)zzzz]
@@ -48,17 +64,12 @@ object Main {
         a string suitable for passing to CAST('timestamp')
     """
 
-    val month_map: Map[String, Int] = Map("Jan"->1, "Feb"->2, "Mar"->3,
-                        "Apr"->4, "May"->5, "Jun"->6,
-                        "Jul"->7, "Aug"->8, "Sep"->9,
-                        "Oct"->10, "Nov"->11, "Dec"->12)
-
-    return "%0:04d-%1:02d-%2:02d %3:02d:%4:02d:%5:02d".format(
-      s.substring(7, 11).toInt,
-      month_map(s.substring(3, 6)),
-      s.substring(0, 2).toInt,
-      s.substring(12, 14).toInt,
-      s.substring(15, 17).toInt,
-      s.substring(18, 20).toInt )
+    "%04d-%02d-%02d %02d:%02d:%02d" format(
+      s.substring(8, 12).toInt,
+      month_map(s.substring(4, 7)),
+      s.substring(1, 3).toInt,
+      s.substring(13, 15).toInt,
+      s.substring(16, 18).toInt,
+      s.substring(19, 21).toInt )
   }
 }
