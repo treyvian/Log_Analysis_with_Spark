@@ -11,14 +11,15 @@ object Main {
       .master("local[1]")
       .appName("Log_Analysis")
       .getOrCreate()
-    //val conf = new SparkConf().setAppName("Log Analysis").setMaster("local")
-    //val sc = new SparkContext(conf)
 
     // Load the text into a Spark RDD, which is a distributed representation of each line of text
     //val log_lines = sc.textFile("src/main/scala/resources/log.txt")
     val df: sql.DataFrame = sc.read.option("header", value = false)
       .option("delimiter", "\n")
       .csv("src/main/scala/resources/log10.txt")
+
+    val line_count = df.count()
+    println("The number of lines in the log file in input is:" + line_count)
 
     val regexDf: sql.DataFrame = df.withColumn("host", regexp_extract(col("_c0"),
       "^([^\\s]+\\s)", 0))
@@ -34,13 +35,16 @@ object Main {
     val u_parse_time_udf = udf(parse_clf_time)
 
     // LocalDateTime
-    val cleanDf = regexDf.withColumn("timestamp", u_parse_time_udf(regexDf("timestamp"))
+    val cleanDf: sql.DataFrame = regexDf.withColumn("timestamp", u_parse_time_udf(regexDf("timestamp"))
       .as("LocalDateTime"))
       .withColumn("status", regexp_extract(col("status"),
         "\\d{3}", 0))
       .withColumn("content_size", regexp_extract(col("content_size"),
         "\\d+", 0))
     cleanDf.show()
+
+    val clean_count = cleanDf.count()
+    println("Lines after cleaning up:" + clean_count)
     sc.stop()
   }
 
@@ -50,15 +54,8 @@ object Main {
     "Oct" -> 10, "Nov" -> 11, "Dec" -> 12)
 
 
-  def parse_clf_time = (s: String) => {
-    """ Convert Common Log time format into a Python datetime object
-    Args:
-        s (str): date and time in Apache time format [dd/mmm/yyyy:hh:mm:ss (+/-)zzzz]
-    Returns:
-        a string suitable for passing to CAST('timestamp')
-    """
-
-    "%04d-%02d-%02d %02d:%02d:%02d" format(
+  def parse_clf_time: String => String = (s: String) => {
+      "%04d-%02d-%02d %02d:%02d:%02d" format(
       s.substring(8, 12).toInt,
       month_map(s.substring(4, 7)),
       s.substring(1, 3).toInt,
