@@ -12,15 +12,24 @@ object Main {
       .appName("Log_Analysis")
       .getOrCreate()
 
-    // Load the text into a Spark RDD, which is a distributed representation of each line of text
-    //val log_lines = sc.textFile("src/main/scala/resources/log.txt")
+    val filePath = "src/main/scala/resources/log10.txt"
+
     val df: sql.DataFrame = sc.read.option("header", value = false)
       .option("delimiter", "\n")
-      .csv("src/main/scala/resources/log10.txt")
+      .csv(filePath)
 
     val line_count = df.count()
     println("The number of lines in the log file in input is:" + line_count)
 
+    val cleanDF: sql.DataFrame = clean_input(df)
+    cleanDF.show(5)
+
+    val clean_count = cleanDF.count()
+    println("Lines after cleaning up:" + clean_count)
+    sc.stop()
+  }
+
+  def clean_input(df: sql.DataFrame): sql.DataFrame = {
     val regexDf: sql.DataFrame = df.withColumn("host", regexp_extract(col("_c0"),
       "^([^\\s]+\\s)", 0))
       .withColumn("timestamp", regexp_extract(col("_c0"),
@@ -41,11 +50,7 @@ object Main {
         "\\d{3}", 0))
       .withColumn("content_size", regexp_extract(col("content_size"),
         "\\d+", 0))
-    cleanDf.show()
-
-    val clean_count = cleanDf.count()
-    println("Lines after cleaning up:" + clean_count)
-    sc.stop()
+    return cleanDf
   }
 
   val month_map: Map[String, Int] = Map("Jan" -> 1, "Feb" -> 2, "Mar" -> 3,
