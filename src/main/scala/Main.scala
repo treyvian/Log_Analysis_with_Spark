@@ -30,16 +30,23 @@ object Main {
   }
 
   def clean_input(df: sql.DataFrame): sql.DataFrame = {
+
+    val reg_host = "^([^\\s]+\\s)"
+    val reg_timestamp = "\\[\\d{2}/\\w{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2} [+-]\\d{4}\\]"
+    val reg_path = "[A-Z]+\\s+[\\d\\D]+\\sHTTP\\S+"
+    val reg_status = "\"\\s+(\\d{3})"
+    val reg_content_size = "\\s+(\\d+)\\s\""
+
     val regexDf: sql.DataFrame = df.withColumn("host", regexp_extract(col("_c0"),
-      "^([^\\s]+\\s)", 0))
+      reg_host, 0))
       .withColumn("timestamp", regexp_extract(col("_c0"),
-        "\\[\\d{2}/\\w{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2} [+-]\\d{4}\\]", 0))
+        reg_timestamp, 0))
       .withColumn("path", regexp_extract(col("_c0"),
-        "[A-Z]+\\s+[\\d\\D]+\\sHTTP\\S+", 0))
+        reg_path, 0))
       .withColumn("status", regexp_extract(col("_c0"),
-        "\"\\s+(\\d{3})", 0))
+        reg_status, 0))
       .withColumn("content_size", regexp_extract(col("_c0"),
-        "\\s+(\\d+)\\s\"", 0)).drop("_c0")
+        reg_content_size, 0)).drop("_c0")
 
     val u_parse_time_udf = udf(parse_clf_time)
 
