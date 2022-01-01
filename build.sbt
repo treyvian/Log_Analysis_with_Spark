@@ -1,8 +1,8 @@
-name := "Spark-Log-Analysis"
+name := "src/main/scala"
 
 version := "0.1"
 
-scalaVersion := "2.13.7"
+scalaVersion := "2.12.15"
 
 // https://mvnrepository.com/artifact/org.apache.spark/spark-core
 libraryDependencies += "org.apache.spark" %% "spark-core" % "3.2.0"

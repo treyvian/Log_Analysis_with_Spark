@@ -1,8 +1,10 @@
+package src.main.scala
+
 import org.apache.spark.sql
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.{col, regexp_extract, udf}
 
-object Main {
+object Log_Analysis {
 
   def main(args: Array[String]) {
 
@@ -12,7 +14,15 @@ object Main {
       .appName("Log_Analysis")
       .getOrCreate()
 
-    val filePath = "src/main/scala/resources/log10.txt"
+    sc.sparkContext.setLogLevel("WARN")
+
+    if (args.length < 1) {
+      print("Usage: Log_data <file_dataset>")
+      sys.exit(1)
+    }
+    
+    // Get the M&M data set filename
+    val filePath = args(0)
 
     val df: sql.DataFrame = sc.read.option("header", value = false)
       .option("delimiter", "\n")
@@ -22,7 +32,7 @@ object Main {
     println("The number of lines in the log file in input is:" + line_count)
 
     val cleanDF: sql.DataFrame = clean_input(df)
-    cleanDF.show(5)
+    cleanDF.show(5, false)
 
     val clean_count = cleanDF.count()
     println("Lines after cleaning up:" + clean_count)
@@ -50,24 +60,26 @@ object Main {
 
     val u_parse_time_udf = udf(parse_clf_time)
 
-    // LocalDateTime
     val cleanDf: sql.DataFrame = regexDf.withColumn("timestamp", u_parse_time_udf(regexDf("timestamp"))
       .as("LocalDateTime"))
       .withColumn("status", regexp_extract(col("status"),
         "\\d{3}", 0))
       .withColumn("content_size", regexp_extract(col("content_size"),
         "\\d+", 0))
-    return cleanDf
+    return regexDf
   }
-
-  val month_map: Map[String, Int] = Map("Jan" -> 1, "Feb" -> 2, "Mar" -> 3,
-    "Apr" -> 4, "May" -> 5, "Jun" -> 6,
-    "Jul" -> 7, "Aug" -> 8, "Sep" -> 9,
-    "Oct" -> 10, "Nov" -> 11, "Dec" -> 12)
 
 
   def parse_clf_time: String => String = (s: String) => {
-      "%04d-%02d-%02d %02d:%02d:%02d" format(
+    
+    val month_map: Map[String,Int] = Map(
+      "Jan" -> 1, "Feb" -> 2, "Mar" -> 3,
+      "Apr" -> 4, "May" -> 5, "Jun" -> 6,
+      "Jul" -> 7, "Aug" -> 8, "Sep" -> 9,
+      "Oct" -> 10, "Nov" -> 11, "Dec" -> 12
+    )
+
+    "%04d-%02d-%02d %02d:%02d:%02d" format(
       s.substring(8, 12).toInt,
       month_map(s.substring(4, 7)),
       s.substring(1, 3).toInt,

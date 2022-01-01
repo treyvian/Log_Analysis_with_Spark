@@ -1,16 +1,15 @@
 # Log Ananlysis with Scala-Spark
 
-This repository is a Intellij project
 - [Technologies](##Tech)
 - [Requisites](##Requisites)
 
 ## Tech
 This project is built using:
-- [Intellij IDEA](https://www.jetbrains.com/idea/) - an integrated development environment (IDE)
-- [Scala](https://www.scala-lang.org/) - programming language which supports both object-oriented programming and functional programming. 
+- [Scala](https://www.scala-lang.org/) - programming language which supports both object-oriented programming and functional programming.
+- [sbt](https://www.scala-sbt.org/1.x/docs/index.html) - sbt is a build tool for Scala, Java 
 - [Apache-Spark](https://spark.apache.org/) - an open-source unified analytics engine for large-scale data processing.
 
 ## Requisites
-* [Scala](https://www.scala-lang.org/) v2.12.15+ 
-* [Apache-Spark](https://spark.apache.org/) v3.2.0+
-* [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) in Intellij
+* java-11-openjdk or java-8-openjdk (see Spark spcification)
+* Scala v2.12.15 
+* Apache-Spark v3.2.0
