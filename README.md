@@ -11,5 +11,5 @@ This project is built using:
 
 ## Requisites
 * java-11-openjdk or java-8-openjdk (see Spark spcification)
-* Scala v2.12.15 
+* Scala v2.12.X 
 * Apache-Spark v3.2.0

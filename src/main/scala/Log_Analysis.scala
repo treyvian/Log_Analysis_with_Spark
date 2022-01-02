@@ -1,8 +1,8 @@
 package src.main.scala
 
 import org.apache.spark.sql
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.{col, regexp_extract, udf}
+import org.apache.spark.sql.{SparkSession, SaveMode}
+import org.apache.spark.sql.functions.{col, regexp_extract, udf, to_timestamp}
 
 object Log_Analysis {
 
@@ -20,8 +20,7 @@ object Log_Analysis {
       print("Usage: Log_data <file_dataset>")
       sys.exit(1)
     }
-    
-    // Get the M&M data set filename
+  
     val filePath = args(0)
 
     val df: sql.DataFrame = sc.read.option("header", value = false)
@@ -32,10 +31,15 @@ object Log_Analysis {
     println("The number of lines in the log file in input is:" + line_count)
 
     val cleanDF: sql.DataFrame = clean_input(df)
+    cleanDF.printSchema()
     cleanDF.show(5, false)
 
-    val clean_count = cleanDF.count()
-    println("Lines after cleaning up:" + clean_count)
+    val cleanCount = cleanDF.count()
+    println("Lines after cleaning up:" + cleanCount)
+
+    val savePath = "/output" 
+    cleanDF.write.format("parquet").saveAsTable(savePath)
+    
     sc.stop()
   }
 
@@ -60,13 +64,12 @@ object Log_Analysis {
 
     val u_parse_time_udf = udf(parse_clf_time)
 
-    val cleanDf: sql.DataFrame = regexDf.withColumn("timestamp", u_parse_time_udf(regexDf("timestamp"))
-      .as("LocalDateTime"))
-      .withColumn("status", regexp_extract(col("status"),
-        "\\d{3}", 0))
-      .withColumn("content_size", regexp_extract(col("content_size"),
-        "\\d+", 0))
-    return regexDf
+    val cleanDf: sql.DataFrame = regexDf
+      .withColumn("timestamp", to_timestamp(u_parse_time_udf(regexDf("timestamp")), "yyyy-MM-dd HH:mm:ss"))
+      .withColumn("status", regexp_extract(col("status"), "\\d{3}", 0).cast("int"))
+      .withColumn("content_size", regexp_extract(col("content_size"), "\\d+", 0).cast("int"))
+
+    return cleanDf
   }
 
 
