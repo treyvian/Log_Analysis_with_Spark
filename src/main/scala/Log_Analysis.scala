@@ -2,7 +2,8 @@ package src.main.scala
 
 import org.apache.spark.sql
 import org.apache.spark.sql.{SparkSession, SaveMode}
-import org.apache.spark.sql.functions.{col, regexp_extract, udf, to_timestamp, avg, min, max}
+//import org.apache.spark.sql.functions.{col, regexp_extract, udf, to_timestamp, avg, min, max}
+import org.apache.spark.sql.functions._
 
 object Log_Analysis {
 
@@ -14,7 +15,7 @@ object Log_Analysis {
     val reg_status = "\"\\s+(\\d{3})"
     val reg_content_size = "\\s+(\\d+)\\s\""
 
-    val regexDf: sql.DataFrame = df.withColumn("host", regexp_extract(col("_c0"), reg_host, 0))
+    val regexDF: sql.DataFrame = df.withColumn("host", regexp_extract(col("_c0"), reg_host, 0))
       .withColumn("timestamp", regexp_extract(col("_c0"), reg_timestamp, 0))
       .withColumn("path", regexp_extract(col("_c0"), reg_path, 0))
       .withColumn("status", regexp_extract(col("_c0"), reg_status, 0))
@@ -22,12 +23,12 @@ object Log_Analysis {
 
     val u_parse_time_udf = udf(parse_clf_time)
 
-    val cleanDf: sql.DataFrame = regexDf
-      .withColumn("timestamp", to_timestamp(u_parse_time_udf(regexDf("timestamp")), "yyyy-MM-dd HH:mm:ss"))
+    val cleanDF: sql.DataFrame = regexDF
+      .withColumn("timestamp", to_timestamp(u_parse_time_udf(regexDF("timestamp")), "yyyy-MM-dd HH:mm:ss"))
       .withColumn("status", regexp_extract(col("status"), "\\d{3}", 0).cast("Integer"))
       .withColumn("content_size", regexp_extract(col("content_size"), "\\d+", 0).cast("Integer"))
 
-    return cleanDf
+    return cleanDF
   }
 
 
@@ -49,12 +50,38 @@ object Log_Analysis {
       s.substring(19, 21).toInt)
   }
 
-  def contentSizeStats (cleanDf: sql.DataFrame) {
+  def contentSizeStats (cleanDF: sql.DataFrame) {
     println("Printing the statistics over the content sizes of the HTTP Requests")
-    cleanDf.select(avg("content_size"),
-                  max("content_size"),
-                  min("content_size")).show()
+    val sizeStatsDF = cleanDF.select(avg("content_size").as("Average"),
+                                      max("content_size").as("Max"),
+                                      min("content_size").as("Min"))
+    sizeStatsDF.show()
   }
+
+  def httpStatusStats (cleanDF: sql.DataFrame) {
+    println("Printing the HTTP code statistics")
+    val statusDF = cleanDF.groupBy("status").count().orderBy(asc("status"))
+    statusDF.show()
+  }
+
+  def frequentHosts (cleanDF: sql.DataFrame) {
+    println("Top 10 frequent hosts sending a request to the server")
+    val frequentHostsDF: sql.DataFrame = cleanDF.groupBy("host")
+      .count()
+      .orderBy(desc("count"))
+      .limit(10)
+    frequentHostsDF.show()
+  }
+
+  def frequentPath (cleanDF: sql.DataFrame) {
+    println ("Top 10 path in the log")
+    val frequentPathDF: sql.DataFrame = cleanDF.groupBy("path")
+      .count()
+      .orderBy(desc("count"))
+      .limit(10)
+    frequentPathDF.show(false)
+  }
+
 
   def main(args: Array[String]) {
 
@@ -88,6 +115,9 @@ object Log_Analysis {
     println("Lines after cleaning up:" + cleanCount)
 
     contentSizeStats(cleanDF)
+    httpStatusStats(cleanDF)
+    frequentHosts(cleanDF)
+    frequentPath(cleanDF)
 
     // val savePath = "/output/dataoutput" 
     // cleanDF.write.mode(SaveMode.Overwrite).format("csv").save(savePath)
