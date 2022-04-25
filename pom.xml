@@ -4,8 +4,8 @@
   <artifactId>LogAnalysis</artifactId>
   <version>0.1</version>
   <name>${project.artifactId}</name>
-  <description>My wonderfull scala app</description>
-  <inceptionYear>2018</inceptionYear>
+  <description>Analysis of the logs file using Apache Spark</description>
+  <inceptionYear>2022</inceptionYear>
   <licenses>
     <license>
       <name>My License</name>
