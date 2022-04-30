@@ -5,6 +5,12 @@ import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{functions => fun}
 
 object Utils {
+
+  /** Parse the dataframe in input, which contains only one column with the log * string and parse it into multiple columns based on the common log format
+  *
+  * @param df spark dataframe to be cleaned
+  * @return cleaned spark dataframe 
+  */
     def clean_input(df: sql.DataFrame): sql.DataFrame = {
 
       val reg_host = "^([^\\s]+\\s)"
@@ -29,8 +35,12 @@ object Utils {
       return cleanDF
     }
 
-
-  def parse_clf_time: String => String = (s: String) => {
+  /** Starting from a timestamp not parsed, map it into a new string that can 
+  * be correctly. it is meant to be a support function for clean_input
+  *
+  * @param datatimeString string to be parse 
+  */
+  def parse_clf_time: String => String = (datatimeString: String) => {
     
     val month_map: Map[String,Int] = Map(
         "Jan" -> 1, "Feb" -> 2, "Mar" -> 3,

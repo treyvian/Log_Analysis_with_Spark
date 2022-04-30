@@ -10,6 +10,7 @@ import org.apache.spark.sql.{SparkSession, SaveMode}
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{functions => fun}
 
+/** Contains the main function */
 object LogAnalysis {
 
   def main(args: Array[String]) {
@@ -22,6 +23,7 @@ object LogAnalysis {
 
     spark.sparkContext.setLogLevel("WARN")
 
+    // Checks if the input path has been passed in input
     if (args.length < 1) {
       print("Number of arguments insufficient")
       sys.exit(1)
@@ -29,6 +31,7 @@ object LogAnalysis {
   
     val filePath = args(0)
 
+    // Read log file 
     val df: sql.DataFrame = spark.read.option("header", value = false)
       .option("delimiter", "\n")
       .csv(filePath)
@@ -36,11 +39,13 @@ object LogAnalysis {
     val line_count = df.count()
     println("The number of lines in the log file in input is:" + line_count)
 
+    // Parse the dataframe
     val cleanDF: sql.DataFrame = clean_input(df)
 
     val cleanCount = cleanDF.count()
     println("Lines after cleaning up:" + cleanCount)
 
+    // Tries the function 
     contentSizeStats(cleanDF).show()
     httpStatusStats(cleanDF).show()
     frequentHosts(cleanDF).show()
