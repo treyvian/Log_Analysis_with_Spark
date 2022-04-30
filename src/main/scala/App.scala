@@ -2,7 +2,8 @@
  * @author ${Davide.Pozzoli}
  */
 
-import main.scala.Utils._
+import main.scala.utils.Utils.clean_input
+import main.scala.utils.AnalysisFunctions._
 
 import org.apache.spark.sql
 import org.apache.spark.sql.{SparkSession, SaveMode}
@@ -40,10 +41,14 @@ object LogAnalysis {
     val cleanCount = cleanDF.count()
     println("Lines after cleaning up:" + cleanCount)
 
-    val dfs = contentSizeStats(cleanDF).show()
+    contentSizeStats(cleanDF).show()
     httpStatusStats(cleanDF).show()
     frequentHosts(cleanDF).show()
     frequentPath(cleanDF).show()
+    frequentPath(cleanDF, true).show()
+    println("The number of uniques number of hosts is: " + uniqueHostsCount(cleanDF))
+    statusCodeFilter(cleanDF).show()
+    println(statusCodeCount(cleanDF))
 
     // val savePath = "/output/dataoutput" 
     // cleanDF.write.mode(SaveMode.Overwrite).format("csv").save(savePath)
