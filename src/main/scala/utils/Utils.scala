@@ -38,23 +38,24 @@ object Utils {
   /** Starting from a timestamp not parsed, map it into a new string that can 
   * be correctly. it is meant to be a support function for clean_input
   *
-  * @param datatimeString string to be parse 
+  * @param timestamp string to be parse 
   */
-  def parse_clf_time: String => String = (datatimeString: String) => {
+  def parse_clf_time: String => String = (timestamp: String) => {
     
     val month_map: Map[String,Int] = Map(
         "Jan" -> 1, "Feb" -> 2, "Mar" -> 3,
         "Apr" -> 4, "May" -> 5, "Jun" -> 6,
         "Jul" -> 7, "Aug" -> 8, "Sep" -> 9,
         "Oct" -> 10, "Nov" -> 11, "Dec" -> 12
-    )
+      )
 
     "%04d-%02d-%02d %02d:%02d:%02d" format(
-        s.substring(8, 12).toInt,
-        month_map(s.substring(4, 7)),
-        s.substring(1, 3).toInt,
-        s.substring(13, 15).toInt,
-        s.substring(16, 18).toInt,
-        s.substring(19, 21).toInt)
+        timestamp.substring(8, 12).toInt,
+        month_map(timestamp.substring(4, 7)),
+        timestamp.substring(1, 3).toInt,
+        timestamp.substring(13, 15).toInt,
+        timestamp.substring(16, 18).toInt,
+        timestamp.substring(19, 21).toInt
+      )
   }
 }
