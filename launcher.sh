@@ -5,4 +5,16 @@ mvn clean package
 spark-submit \
 --class LogAnalysis \
 target/LogAnalysis-*.*.jar \
-data/log10.txt
+data/access.log output/
+
+
+###gcloud dataproc jobs submit spark \
+#    --cluster=${CLUSTER} \
+#    --class=LogAnalysis \
+#    --jars=gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar \
+#    --region=${REGION} \
+#    -- gs://${BUCKET_NAME}/input/access.log gs://${BUCKET_NAME}/output/
+
+
+# gsutil cp target/LogAnalysis-0.1.jar \
+#    gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar

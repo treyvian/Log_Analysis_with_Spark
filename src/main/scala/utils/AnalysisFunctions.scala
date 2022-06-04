@@ -38,14 +38,16 @@ object AnalysisFunctions {
   * most frequent requester
   *
   * @param cleanDF spark dataframe containing the logs
+  * @param limit The number of rows you want to keep in the dataframe
   * @return spark dataframe with the hosts ordered by the most frequent
   * requester
   */
-  def frequentHosts (cleanDF: sql.DataFrame): sql.DataFrame =  {
+  def frequentHosts (cleanDF: sql.DataFrame, limit: Integer = 100): sql.DataFrame =  {
     println("Top frequent hosts sending a request to the server")
     val frequentHostsDF: sql.DataFrame = cleanDF.groupBy("host")
       .count()
       .orderBy(fun.desc("count"))
+      .limit(limit)
     
     return frequentHostsDF
   }
@@ -94,18 +96,6 @@ object AnalysisFunctions {
   */
   def statusCodeFilter (cleanDF: sql.DataFrame, code: Integer = 404): sql.DataFrame ={
       val statusDf = cleanDF.filter(col("status") === code)
-      return statusDf
-  }
-
-  /** Count the number of http requests with the status code in input. If no 
-  * value is specified the default code is 404  
-  *
-  * @param cleanDF spark dataframe containing the logs
-  * @param code status code with which to filter the dataframe
-  * @return number of requests with that status code
-  */
-  def statusCodeCount (cleanDF: sql.DataFrame, code: Integer = 404): Long ={
-      val statusDf = cleanDF.filter(col("status") === code).count()
       return statusDf
   }
 }
