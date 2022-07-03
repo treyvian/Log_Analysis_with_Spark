@@ -1,20 +1,27 @@
+echo "COMPILING PROJECT"
+
 # Compile the project with Maven
 mvn clean package
 
-# Launch the main function 
-spark-submit \
---class LogAnalysis \
-target/LogAnalysis-*.*.jar \
-data/access.log output/
+export CLUSTER=cluster1
+export BUCKET_NAME=log-analysis-data
+export REGION=europe-west6
+
+echo "LOADING JAR TO THE CLUSTER"
+
+# Copying jar to cloud
+gsutil cp target/LogAnalysis-1.0.jar \
+   gs://${BUCKET_NAME}/scala/LogAnalysis-1.0.jar
+
+echo "EXECUTING JOB"
+
+# Excecution of the job on cloud
+gcloud dataproc jobs submit spark \
+   --cluster=${CLUSTER} \
+   --class=LogAnalysis \
+   --jars=gs://${BUCKET_NAME}/scala/LogAnalysis-1.0.jar \
+   --region=${REGION} \
+   -- yarn gs://${BUCKET_NAME}/input/access.log gs://${BUCKET_NAME}/output/
 
 
-###gcloud dataproc jobs submit spark \
-#    --cluster=${CLUSTER} \
-#    --class=LogAnalysis \
-#    --jars=gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar \
-#    --region=${REGION} \
-#    -- gs://${BUCKET_NAME}/input/access.log gs://${BUCKET_NAME}/output/
 
-
-# gsutil cp target/LogAnalysis-0.1.jar \
-#    gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar

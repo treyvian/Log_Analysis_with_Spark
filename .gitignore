@@ -4,3 +4,5 @@
 *.log
 *.txt
 /output/
+data_visualization/data/*.csv
+*.json

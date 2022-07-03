@@ -5,7 +5,8 @@ Project work for Languages and Algorithms for Artificial Intelligence.
 - [Abstract](##Abstract)
 - [Technologies](##Tech)
 - [Requisites](##Requisites)
-- [How to run it](##Howtorunit)
+- [Compile](##Compile)
+- [Run It](##RunIt)
 
 
 ## Abstract
@@ -23,8 +24,33 @@ This project is built using:
 * Scala v2.12
 * Apache-Spark v3.2.0
 
-## How to run it
-There is a script called launcher.sh that will compile and run the main function.
+## Compile
+The code is compiled using Maven. To run a clean compile the code run in the project directory:
 ```
-./launcher.sh
+mvn clean compile package
 ```
+
+## Run it
+To run it locally the command is:
+```
+spark-submit --class LogAnalysis target/LogAnalysis-*.*.jar local <INPUT_FOLDER> <OUTPUT_FOLDER>
+```
+INPUT_FOLDER = the file of log in input, for this project: data/access.log
+OUTPUT_FOLDER = the folder in which to store the output: output/
+
+### Run it with Google Cloud Platform
+First upload the file to Google Storage
+```
+gsutil cp target/LogAnalysis-0.1.jar \
+   gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar
+```
+Then you can run it with:
+```
+gcloud dataproc jobs submit spark \
+  --cluster=${CLUSTER} \
+  --class=LogAnalysis \
+  --jars=gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar \
+  --region=${REGION} \
+  --gcp gs://${BUCKET_NAME}/input/access.log gs://${BUCKET_NAME}/output/
+```
+
