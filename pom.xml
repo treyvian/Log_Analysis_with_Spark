@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>main.src</groupId>
   <artifactId>LogAnalysis</artifactId>
-  <version>0.1</version>
+  <version>1.0</version>
   <name>${project.artifactId}</name>
   <description>Analysis of the logs file using Apache Spark</description>
   <inceptionYear>2022</inceptionYear>
@@ -18,7 +18,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <encoding>UTF-8</encoding>
-    <scala.version>2.12.15</scala.version>
+    <scala.version>2.12.16</scala.version>
     <scala.compat.version>2.12</scala.compat.version>
     <spec2.version>4.2.0</spec2.version>
   </properties>
@@ -42,7 +42,6 @@
       <version>3.2.0</version>
       <scope>provided</scope>
     </dependency>
-
 
     <!-- Test -->
     <dependency>

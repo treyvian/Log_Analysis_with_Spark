@@ -4,6 +4,7 @@ import org.apache.spark.sql
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{functions => fun}
 
+
 object Utils {
 
   /** Parse the dataframe in input, which contains only one column with the log * string and parse it into multiple columns based on the common log format
