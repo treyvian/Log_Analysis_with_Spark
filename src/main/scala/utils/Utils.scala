@@ -17,6 +17,7 @@ object Utils {
       val reg_host = "^([^\\s]+\\s)"
       val reg_timestamp = "\\[\\d{2}/\\w{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2} [+-]\\d{4}\\]"
       val reg_path = "[A-Z]+\\s+[\\d\\D]+\\sHTTP\\S+"
+      val reg_path2 = "[A-Z]+\\s+[\\d\\D]+\\s"
       val reg_status = "\"\\s+(\\d{3})"
       val reg_content_size = "\\s+(\\d+)\\s\""
 
@@ -32,6 +33,7 @@ object Utils {
           .withColumn("timestamp", fun.to_timestamp(u_parse_time_udf(regexDF("timestamp")), "yyyy-MM-dd HH:mm:ss"))
           .withColumn("status", fun.regexp_extract(col("status"), "\\d{3}", 0).cast("Integer"))
           .withColumn("content_size", fun.regexp_extract(col("content_size"), "\\d+", 0).cast("Integer"))
+          .withColumn("path", fun.regexp_extract(col("path"), reg_path2, 0))
 
       return cleanDF
     }

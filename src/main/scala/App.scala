@@ -71,6 +71,7 @@ object LogAnalysis {
         .option("header", "true")
         .save(outputPath + "/analysis"+ timestamp +"/stats")
     
+    println("Writing to file")
 
     httpStatusStats(cleanDF).coalesce(1)
                             .write
@@ -86,9 +87,8 @@ object LogAnalysis {
                           .write
                           .format("com.databricks.spark.csv")
                           .option("header", "true")
+                          .option("delimiter", "^")
                           .save(outputPath + "/analysis"+ timestamp +"/frequentPath")
-
-    println("The number of uniques number of hosts is: " + uniqueHostsCount(cleanDF))
 
     // Stop the current session
     spark.stop()

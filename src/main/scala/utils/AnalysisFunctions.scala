@@ -70,7 +70,7 @@ object AnalysisFunctions {
 
     * @return spark dataframe with the most frequent paths
     */
-    def frequentPath (cleanDF: sql.DataFrame, isErrorPath: Boolean = false, count: Integer = 5): sql.DataFrame =  {
+    def frequentPath (cleanDF: sql.DataFrame, isErrorPath: Boolean = false, count: Integer = 100): sql.DataFrame =  {
 
         var errorPathDf: sql.DataFrame = cleanDF
 

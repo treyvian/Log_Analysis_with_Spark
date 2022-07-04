@@ -6,3 +6,4 @@
 /output/
 data_visualization/data/*.csv
 *.json
+data_visualization/__pycache__
