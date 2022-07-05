@@ -14,7 +14,6 @@ object AnalysisFunctions {
     * @return spark dataframe with content size information
     */
     def contentSizeStats (cleanDF: sql.DataFrame): sql.DataFrame = {
-        println("Printing the statistics for the content size of the http body")
         val sizeStatsDF = cleanDF.select(fun.avg("content_size").as("Average"),
                                         fun.max("content_size").as("Max"),
                                         fun.min("content_size").as("Min"))
