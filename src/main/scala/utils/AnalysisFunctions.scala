@@ -57,8 +57,7 @@ object AnalysisFunctions {
         return frequentHostsDF
     }
 
-    /** Finds the most frequent paths requested on the server ordering them by the
-    * number of times they are requested
+    /** Finds the most frequent paths requested on the server ordering them by * the number of times they are requested
     *
     * @param cleanDF spark dataframe containing the logs
     * @param isErrorPath boolean value to find the path that weren't accessible

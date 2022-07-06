@@ -7,6 +7,7 @@ Project work for Languages and Algorithms for Artificial Intelligence.
 - [Requisites](##Requisites)
 - [Compile](##Compile)
 - [Run It](##RunIt)
+- [Visualize results](##VisualizeResults)
 
 
 ## Abstract
@@ -23,6 +24,7 @@ This project is built using:
 * java-11-openjdk or java-8-openjdk (see Spark spcification)
 * Scala v2.12
 * Apache-Spark v3.2.0
+* Python v3.7
 
 ## Compile
 The code is compiled using Maven. To run a clean compile the code run in the project directory:
@@ -41,8 +43,8 @@ OUTPUT_FOLDER = the folder in which to store the output: output/
 ### Run it with Google Cloud Platform
 First upload the file to Google Storage
 ```
-gsutil cp target/LogAnalysis-0.1.jar \
-   gs://${BUCKET_NAME}/scala/LogAnalysis-0.1.jar
+gsutil cp target/LogAnalysis-1.0.jar \
+   gs://${BUCKET_NAME}/scala/LogAnalysis-1.0.jar
 ```
 Then you can run it with:
 ```
@@ -54,3 +56,30 @@ gcloud dataproc jobs submit spark \
   --gcp gs://${BUCKET_NAME}/input/access.log gs://${BUCKET_NAME}/output/
 ```
 
+### Run it with the launcher
+I have created a script called *launcher.sh* to run the application with Google Cloud Platform. The script will compile the project with Maven, upload the jar on gcp storage and execute the application on the cluster. Before running the script the variables *CLUSTER*, *BUCKET_NAME*, *REGION*, present inside, must be set based on your configuration.
+
+To execute simply run:
+```
+./launcher.sh
+```
+
+## Visualize results
+I also added two python notebooks to visualize the result obtained through the log analysis.
+
+The libraries required to execute them are inside the file *requirements.txt* with relative versions:
+```
+pip install -r requirements.txt
+```
+
+The *00_download_data.py* will download data from the bucket in gcp and saves it in the folder /data_visualization/data/. To execute it the json file for the service account authenticator must be present and the path specified in the file *constants.py* in the variable *KEY_JSON*.
+```
+python 00_download_data.py --folder_name {FOLDER_NAME}
+```
+FOLDER_NAME is the name of the folder corresponding to the execution that created the data, which correspond to the folder inside *${BUCKET_NAME}/output*. Es. analysis22_07_04_22_30_34.
+
+
+The *01_plot.py* will actually plot the results downloaded with matplotlib in a very ugly dashboard
+```
+python 01_plot.py
+```

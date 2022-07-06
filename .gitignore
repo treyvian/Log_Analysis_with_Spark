@@ -2,7 +2,7 @@
 /.vscode
 *.zip
 *.log
-*.txt
+data/*.txt
 /output/
 data_visualization/data/*.csv
 *.json
